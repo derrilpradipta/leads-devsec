@@ -8,7 +8,14 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  useEffect(() => { document.title = 'Login'; }, []);
+  useEffect(() => {
+    document.title = 'Login';
+    // Sesi asli ada di localStorage (diisi setelah login). Kalau masih ada,
+    // langsung ke dashboard tanpa perlu login ulang.
+    const uid = localStorage.getItem('user_id');
+    const role = localStorage.getItem('user_role');
+    if (uid && role) router.replace('/dashboard');
+  }, [router]);
 
   // Fungsi LOGIN — bukan register
   const handleLogin = async (e: React.FormEvent) => {

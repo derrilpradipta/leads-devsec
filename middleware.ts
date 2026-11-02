@@ -11,10 +11,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Jika sudah login tapi malah mau ke halaman login
-  if (pathname === "/login" && token) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
+  // Catatan: redirect /login -> /dashboard TIDAK dilakukan di sini.
+  // Cookie hanya penanda, bukan bukti sesi aktif — cookie sisa bisa membuat user
+  // terlempar ke dashboard padahal localStorage (sesi asli) sudah kosong.
+  // Keputusan "sudah login" dilakukan di app/login/page.tsx lewat localStorage,
+  // dan app/dashboard/layout.tsx membuang sesi yang tidak valid.
 
   return NextResponse.next();
 }

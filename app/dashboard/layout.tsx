@@ -1,4 +1,7 @@
 // app/dashboard/layout.tsx
+"use client";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Sidebar from '../components/sidebar';
 
 export default function DashboardLayout({
@@ -6,6 +9,32 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
+  const [siap, setSiap] = useState(false);
+
+  useEffect(() => {
+    const uid = localStorage.getItem('user_id');
+    const role = localStorage.getItem('user_role');
+
+    // Cookie di middleware hanya penanda. Sesi asli ada di localStorage:
+    // kalau tidak ada, buang cookie sisa lalu kembalikan ke halaman login.
+    if (!uid || !role) {
+      fetch('/api/logout', { method: 'POST' })
+        .catch(() => {})
+        .finally(() => router.replace('/login'));
+      return;
+    }
+    setSiap(true);
+  }, [router]);
+
+  if (!siap) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-sm text-gray-400">
+        Memeriksa sesi...
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-[#F8F9FC]">
       <Sidebar />
