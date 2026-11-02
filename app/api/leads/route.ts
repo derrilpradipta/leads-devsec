@@ -59,6 +59,16 @@ export async function GET(request: Request) {
       whereClause.userId = Number(userId);
     }
 
+    // ⚠️ [LAB-VULN-SQLI] SENGAJA RENTAN — hanya untuk tugas kuliah.
+    // Parameter `search` disambung langsung ke SQL, jadi bisa dipakai untuk
+    // menembus filter kepemilikan data (OR 1=1) atau mencuri data tabel lain (UNION).
+    const search = searchParams.get("search");
+    if (search) {
+      const sql = `SELECT * FROM "Lead" WHERE "userId" = ${Number(userId) || 0} AND "products"::text ILIKE '%${search}%' ORDER BY "tanggal" DESC`;
+      const rows = await prisma.$queryRawUnsafe(sql);
+      return NextResponse.json(rows);
+    }
+
     const leads = await prisma.lead.findMany({
       where: whereClause,
       orderBy: { tanggal: "desc" },

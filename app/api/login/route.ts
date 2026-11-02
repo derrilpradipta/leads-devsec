@@ -6,11 +6,15 @@ export async function POST(request: Request) {
   const { username, password } = await request.json();
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { username: username },
-    });
+    // ⚠️ [LAB-VULN-SQLI] SENGAJA RENTAN — hanya untuk tugas kuliah.
+    // Input user disambung langsung ke SQL (string concatenation, tanpa parameterisasi).
+    // Versi aman ada di git: prisma.user.findUnique({ where: { username } })
+    const rows: any[] = await prisma.$queryRawUnsafe(
+      `SELECT id, nama, username, role FROM "User" WHERE username = '${username}' AND password = '${password}' LIMIT 1`
+    );
+    const user = rows[0];
 
-    if (user && user.password === password) {
+    if (user) {
       // 1. Response JSON untuk kebutuhan frontend (localStorage)
       const response = NextResponse.json({ 
         message: "Login Berhasil",
