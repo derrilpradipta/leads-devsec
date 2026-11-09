@@ -252,7 +252,9 @@ export default function ProductsPage() {
                     />
                   ) : (
                     <span className={`flex-1 text-[13px] font-medium ${product.aktif ? 'text-gray-700' : 'text-gray-400 line-through'}`}>
-                      {product.nama}
+                      {/* ⚠️ [LAB-VULN-XSS] SENGAJA RENTAN — nama produk dirender sebagai HTML mentah.
+                          Versi aman: {product.nama} (React otomatis meng-escape) */}
+                      <span dangerouslySetInnerHTML={{ __html: product.nama }} />
                     </span>
                   )}
 
